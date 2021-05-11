@@ -1,0 +1,204 @@
+---
+title: "Concentration-Response Curves"
+author: "Eric Lawrence"
+date: "2/22/2021"
+output:
+  html_document:
+    code_folding: show
+    code_download: true
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo =TRUE, warning = FALSE, message = FALSE)
+```
+
+## Concentration-Response Example
+
+In this document I use concentration-response and dose-response interchangeably. To be specific, dose-response is referring to the internal concentration within an organism and concentration-response is referring to the external concentration in an aquatic medium that the organism is exposed to. Using concentration-response is standard for aquatic toxicology and is what I am using in this analysis. The process of model fitting to the data is the same in either case.
+
+This document follows a concentration-response analysis for organophosphate pesticide toxicity to Coho salmon for two pesticides: diazinon and malathinon. The data are from a series of toxicology experiments conducted by NOAA fisheries and provided to IETC by Cathy Laetz and David Baldwin (Laetz et al. 2009, Laetz et al. 2013).
+
+This analysis was conducted to model single chemical and mixture toxicity for use in Bayesian network relative risk models (BN-RRM) for watersheds in Washington State to assess risk to Chinook salmon from pesticide and water quality stressors (Mitchell et al. 2020).
+
+## drc Package
+
+The drc package is effective for creating concentration-response models using R Statistical Software. It contains several built in models for 
+
+link to drc package documentation
+
+## Load in libraries and data
+
+
+```{r libraries}
+
+library(drc)
+library(dplyr) # data organization package
+library(plotly) # for 3d scatterplot
+
+diaz <- read.csv("Diazinon_R.csv") # Diazinon Data
+mala <- read.csv("Malathion_R.csv") # Malathion Data
+mdmix <- read.csv("donmon_R.csv") # Mixture Data
+
+```
+
+## Diazinon Concentration-Response
+
+
+
+```{r pressure}
+
+# Using only 2005 data
+diaz <- diaz %>%
+  filter(Year == "2005")
+
+summary(diaz)
+
+# Plot data for visual inspection
+
+plot(diaz$ache~diaz$conc)
+
+```
+
+
+## Dose-Response Model
+
+The drm function is the dose-response model fitting function as part of the drc package. The fct parameter selects which dose-response model to use. These models are built into the drc package. See the attached pdfs for the drc package documentation that goes into detail about the different models and their equations. LL.3 is the log-logistic 3 parameter model and W2.4 is the Weibull type 2, 4 parameter model.
+
+There are a lot of different models available. I have heard different things from different people when it comes to selection criteria on which models to consider. The main criteria that I used is whether to include hormesis models, which I haven't included because I haven't had to model any dose-response data that had evidence of hormesis. I used this particular selection of models when I was doing a senior thesis research project with Ruth as an undergrad and have generally stuck with it for model fitting in R. In short, for model fitting use the model that fits your data best and also makes sense for your data. Log-logistic and Weibull models are commonly used for toxicology. The EXD models are exponential models but I don't think I have ever ended up selecting them.
+
+The mselect function takes a drm object as input and recreates the drm object using a list of models to provide best fit criteria. The reason the drm function is first in the code is because there needs to be a drm model in order to use the mselect function. When I first create a drm object I use the LL.3 (Log-logistic 3 parameter) model. I then use the mselect to see if I should use a different model instead based on the lowest residual variance. I then go back and change the fct parameter on the drm function and rerun the code if needed.
+
+
+```{r}
+
+############################## Model Construction
+
+diaz.mod <- drm(diaz$ache~diaz$conc, fct=W2.4())
+
+############################## Model Selection
+
+mselect(diaz.mod, list(LL.3(), LL.4(), LL.5(), EXD.2(), EXD.3(), W1.3(), W1.4(), W2.3(), W2.4()) )
+#### W2.4 selected for best fit
+
+############################## Prediction interval
+
+```
+
+## Prediction Intervals
+
+The drc package does not automatically calculate prediction intervals like it does for confidence intervals when graphing so here I am use the predict function to create predictions along the drm model.
+
+pre.seq is a sequence of x values to create predictions from.
+
+pre.d is the dataframe that I am putting the prediction data into.
+
+pre.p are the predictions calculated from the predict function using the pre.d dataframe that contains pre.d$conc which are the x values from pre.seq.
+
+    # Add predictions to dataframe
+    pre.d$p <- pre.p[,1]
+    pre.d$p.l <- pre.p[,2]
+    pre.d$p.u <- pre.p[,3]
+
+
+This code is individually taking the columns out of the pre.p predictions object and putting them into the pre.d dataframe. p.l are the lower predictions and p.u are the upper predictions. The bracket notation is used in R to select data from a dataframe: [row, column]
+
+pre.p[1,1] is the same as saying: select the data from the first row and first column. This is a single value.
+pre.p[2,3] is select the data from the second row and third column.
+pre.p[,3] by not putting a number for the row, you are selecting the entire column. This is saying select the entire 3rd column. The output of this code is a vector containing all the values in the third column of this dataframe. Don't forget the comma when you use this.
+
+
+```{r}
+
+################### Sequence of doses to predict
+
+# Create a sequence of x values to make predictions from
+pre.seq <- exp(seq(log(0.00001), log(1000), length = 100))
+
+# Create a data frame with x values
+pre.d <- expand.grid(conc = pre.seq)
+
+# Make predictions
+pre.p <- predict(diaz.mod, newdata = pre.d, interval = "prediction")
+
+# Add predictions to dataframe
+pre.d$p <- pre.p[,1]
+pre.d$p.l <- pre.p[,2]
+pre.d$p.u <- pre.p[,3]
+pre.d
+
+summary(pre.d)
+
+# Make models for upper and lower predictions
+
+pre.l.m <- drm(pre.d$p.l~pre.d$conc, fct = W2.4())
+pre.u.m <- drm(pre.d$p.u ~ pre.d$conc, fct = W2.4())
+
+```
+
+## Concentration-Response Figure
+
+```{r}
+
+############################## Figure for Diazinon
+
+plot(diaz.mod, type = "confidence", ylab = "AchE (Percent Control)",
+     xlab = "Concentration (ug/L)",
+     ylim = c(0,165),
+     main = "Diazinon, W2.4, 95% CI")
+plot(diaz.mod, type = "all", add = TRUE)
+
+#Prediction Interval
+
+plot(pre.l.m, add = TRUE, type = "none", col = "blue")
+plot(pre.u.m, add=TRUE, type = "none", col = "blue")
+
+#Legend
+
+legend("topright", c("Prediction Interval", "95% Confidence Interval"),
+       lty=c(1,1),
+       lwd=c(2.5,2.5), 
+       col=c('blue', 'gray'),
+       bty = "n")
+
+
+
+############################## Model Parameters
+
+diaz.mod
+
+# Call:
+#   drm(formula = diaz$ache ~ diaz$conc, fct = W2.4())
+# 
+#   Coefficients:
+#   b:(Intercept)  c:(Intercept)  d:(Intercept)  e:(Intercept)  
+#        -0.9116        24.7515        99.9396        35.6787   
+
+summary(diaz.mod)
+
+################################ Diazinon EC50
+
+diaz.ec <- ED(diaz.mod, c(5, 10, 20, 50), interval = "delta")
+diaz.ec
+
+#       Estimate Std. Error   Lower   Upper
+# e:1:5   10.7078     4.2001  2.3426 19.0729
+# e:1:10  14.2912     4.5578  5.2135 23.3689
+# e:1:20  21.1686     4.9518 11.3062 31.0311
+# e:1:50  53.3358    12.2935 28.8511 77.8204
+
+ec50.d <- 53.3358
+
+################################ Diazinon Toxic Units
+
+diaz.s.tu <- diaz$conc / ec50.d
+plot(diaz$ache ~ diaz.s.tu)
+
+diaz.s.tu.m <- drm(diaz$ache ~ diaz.s.tu, fct=W2.4())
+plot(diaz.s.tu.m)
+
+
+```
+
+
+
