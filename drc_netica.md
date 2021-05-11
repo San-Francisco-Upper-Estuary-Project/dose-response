@@ -9,9 +9,7 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = F, error = F, message = F)
-```
+
 
 # Steps
 
@@ -29,32 +27,51 @@ knitr::opts_chunk$set(echo = TRUE, warning = F, error = F, message = F)
 
 This data is from a NOAA Fisheries Study (Laetz et al. 2005) that tested diazinon toxicity to Coho salmon. They measured achetylcholinesterase inhibition along with mortality and changes in swimming speed for several concentrations of diazinon, other pesticides and mixtures of pesticides.
 
-```{r libraries}
 
+```r
 library(drc)
 library(dplyr)
 
 diaz <- read.csv("Diazinon_R.csv") # Diazinon Data
-
 ```
 
 ## Diazinon Concentration-Response
 
 
 
-```{r pressure}
 
+```r
 # Using only 2005 data
 diaz <- diaz %>%
   filter(Year == "2005")
 
 summary(diaz)
+```
 
+```
+##    Exposure         Concentration           conc             ache       
+##  Length:80          Length:80          Min.   :  0.00   Min.   : 22.42  
+##  Class :character   Class :character   1st Qu.:  0.00   1st Qu.: 67.45  
+##  Mode  :character   Mode  :character   Median :  3.00   Median : 96.22  
+##                                        Mean   : 66.61   Mean   : 84.05  
+##                                        3rd Qu.: 50.00   3rd Qu.:100.98  
+##                                        Max.   :500.00   Max.   :160.14  
+##    Control               Year     
+##  Length:80          Min.   :2005  
+##  Class :character   1st Qu.:2005  
+##  Mode  :character   Median :2005  
+##                     Mean   :2005  
+##                     3rd Qu.:2005  
+##                     Max.   :2005
+```
+
+```r
 # Plot data for visual inspection
 
 plot(diaz$ache~diaz$conc)
-
 ```
+
+![](drc_netica_files/figure-html/pressure-1.png)<!-- -->
 
 
 ## Dose-Response Model
@@ -64,8 +81,8 @@ The drm function is the dose-response model fitting function as part of the drc 
 The mselect function takes a drm object as input and recreates the drm object using a list of models to provide best fit criteria. The reason the drm function is first in the code is because there needs to be a drm model in order to use the mselect function. When I first create a drm object I use the LL.3 (Log-logistic 3 parameter) model. I then use the mselect to see if I should use a different model instead based on the lowest residual variance. I then go back and change the fct parameter on the drm function and rerun the code if needed.
 
 
-```{r}
 
+```r
 ############################## Model Construction
 
 diaz.mod <- drm(diaz$ache~diaz$conc, fct=W2.4())
@@ -73,8 +90,24 @@ diaz.mod <- drm(diaz$ache~diaz$conc, fct=W2.4())
 ############################## Model Selection
 
 mselect(diaz.mod, list(LL.3(), LL.4(), LL.5(), EXD.2(), EXD.3(), W1.3(), W1.4(), W2.3(), W2.4()) )
-#### W2.4 selected for best fit
+```
 
+```
+##          logLik       IC  Lack of fit  Res var
+## W2.4  -301.5640 613.1281 3.349221e-03 115.8756
+## W2.4  -301.5640 613.1281 3.349221e-03 115.8756
+## LL.4  -301.7924 613.5849 2.783246e-03 116.5391
+## EXD.3 -303.0637 614.1274 2.257589e-03 118.7401
+## W1.4  -302.4774 614.9548 1.592663e-03 118.5520
+## LL.5  -301.5563 615.1127 1.339363e-03 117.3980
+## W2.3  -303.5703 615.1407 1.514657e-03 120.2536
+## LL.3  -307.9265 623.8529 4.459004e-05 134.0892
+## W1.3  -312.2308 632.4615 1.226216e-06 149.3232
+## EXD.2 -324.2448 654.4897 1.239631e-10 199.0511
+```
+
+```r
+#### W2.4 selected for best fit
 ```
 
 ## Prediction Intervals
@@ -100,8 +133,8 @@ pre.p[2,3] is select the data from the second row and third column.
 pre.p[,3] by not putting a number for the row, you are selecting the entire column. This is saying select the entire 3rd column. The output of this code is a vector containing all the values in the third column of this dataframe. Don't forget the comma when you use this.
 
 
-```{r}
 
+```r
 ################### Sequence of doses to predict
 
 # Create a sequence of x values to make predictions from
@@ -122,13 +155,12 @@ pre.d$p.u <- pre.p[,3]
 
 pre.l.m <- drm(pre.d$p.l~pre.d$conc, fct = W2.4())
 pre.u.m <- drm(pre.d$p.u ~ pre.d$conc, fct = W2.4())
-
 ```
 
 ## Concentration-Response Figure
 
-```{r}
 
+```r
 ############################## Figure for Diazinon
 
 plot(diaz.mod, type = "confidence", ylab = "AchE (Percent Control)",
@@ -151,18 +183,52 @@ legend("topright", c("Prediction Interval", "95% Confidence Interval"),
        bty = "n")
 ```
 
+![](drc_netica_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 # Step 2 - Extract coefficients from the drc model
 
 Calling the model object itself will give you coefficients estimated by the model fitting function. You can also use summary() to get more details.
 
-```{r}
 
+```r
 ############################## Model Parameters
 
 diaz.mod
+```
 
+```
+## 
+## A 'drc' model.
+## 
+## Call:
+## drm(formula = diaz$ache ~ diaz$conc, fct = W2.4())
+## 
+## Coefficients:
+## b:(Intercept)  c:(Intercept)  d:(Intercept)  e:(Intercept)  
+##       -0.9116        24.7515        99.9396        35.6787
+```
+
+```r
 summary(diaz.mod)
+```
 
+```
+## 
+## Model fitted: Weibull (type 2) (4 parms)
+## 
+## Parameter estimates:
+## 
+##               Estimate Std. Error t-value   p-value    
+## b:(Intercept) -0.91160    0.27274 -3.3423  0.001291 ** 
+## c:(Intercept) 24.75148    7.83318  3.1598  0.002267 ** 
+## d:(Intercept) 99.93955    1.58577 63.0226 < 2.2e-16 ***
+## e:(Intercept) 35.67869    6.67792  5.3428 9.238e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error:
+## 
+##  10.76455 (76 degrees of freedom)
 ```
 
 # Step 3 - Locate model equation
