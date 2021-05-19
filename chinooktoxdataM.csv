@@ -1,0 +1,97 @@
+﻿conc,percentmortality,toxicant,concunit,endpoint,orgage,ageunits,exposure,exposureunits,exposuretype,nominalormeasured,authoryear
+0,0,esfenvalerate,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0.002381463,0,esfenvalerate,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0.023814627,72,esfenvalerate,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0.238146269,63,esfenvalerate,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0,0,triclopyr butoxyethyl ester,μM,mortality,NR,NA,1,hours,flowthrough,nominal,kreutzweiser1994
+60.2916433,0,triclopyr butoxyethyl ester,μM,mortality,NR,NA,1,hours,flowthrough,nominal,kreutzweiser1994
+75.43466068,13.3,triclopyr butoxyethyl ester,μM,mortality,NR,NA,1,hours,flowthrough,nominal,kreutzweiser1994
+97.30790802,46.7,triclopyr butoxyethyl ester,μM,mortality,NR,NA,1,hours,flowthrough,nominal,kreutzweiser1994
+108.5249579,73.3,triclopyr butoxyethyl ester,μM,mortality,NR,NA,1,hours,flowthrough,nominal,kreutzweiser1994
+0,0,triclopyr butoxyethyl ester,μM,mortality,NR,NA,6,hours,flowthrough,nominal,kreutzweiser1994
+7.851934941,0,triclopyr butoxyethyl ester,μM,mortality,NR,NA,6,hours,flowthrough,nominal,kreutzweiser1994
+10.65619742,6.7,triclopyr butoxyethyl ester,μM,mortality,NR,NA,6,hours,flowthrough,nominal,kreutzweiser1994
+13.18003365,46.7,triclopyr butoxyethyl ester,μM,mortality,NR,NA,6,hours,flowthrough,nominal,kreutzweiser1994
+15.42344363,93.3,triclopyr butoxyethyl ester,μM,mortality,NR,NA,6,hours,flowthrough,nominal,kreutzweiser1994
+0,0,triclopyr butoxyethyl ester,μM,mortality,NR,NA,24,hours,flowthrough,nominal,kreutzweiser1994
+4.346606842,0,triclopyr butoxyethyl ester,μM,mortality,NR,NA,24,hours,flowthrough,nominal,kreutzweiser1994
+4.907459338,60,triclopyr butoxyethyl ester,μM,mortality,NR,NA,24,hours,flowthrough,nominal,kreutzweiser1994
+5.187885586,66.7,triclopyr butoxyethyl ester,μM,mortality,NR,NA,24,hours,flowthrough,nominal,kreutzweiser1994
+5.468311834,93.3,triclopyr butoxyethyl ester,μM,mortality,NR,NA,24,hours,flowthrough,nominal,kreutzweiser1994
+0,0,diazinon,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+32.85798778,0,diazinon,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+65.71597555,13,diazinon,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+164.2899389,100,diazinon,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0,0,dinoseb,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0.208146868,15,dinoseb,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0.416293737,87,dinoseb,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+3.122203026,100,dinoseb,μM,mortality,alevin,NA,96,hours,staticrenewal,nominal,viant2006
+0,0,dinoseb,μM,mortality,egg,NA,96,hours,staticrenewal,nominal,viant2006
+0.208146868,0,dinoseb,μM,mortality,egg,NA,96,hours,staticrenewal,nominal,viant2006
+1.040734342,24,dinoseb,μM,mortality,egg,NA,96,hours,staticrenewal,nominal,viant2006
+3.122203026,100,dinoseb,μM,mortality,egg,NA,96,hours,staticrenewal,nominal,viant2006
+0.018883958,9,copper,μM,mortality,egg,NA,14,weeks,flowthrough,measured,chapman1975
+0.116451075,10,copper,μM,mortality,egg,NA,14,weeks,flowthrough,measured,chapman1975
+0.147924338,10,copper,μM,mortality,egg,NA,14,weeks,flowthrough,measured,chapman1975
+0.184118591,20,copper,μM,mortality,egg,NA,14,weeks,flowthrough,measured,chapman1975
+0.243917792,49,copper,μM,mortality,egg,NA,14,weeks,flowthrough,measured,chapman1975
+0.317879961,94,copper,μM,mortality,egg,NA,14,weeks,flowthrough,measured,chapman1975
+0.137656776,9,zinc,μM,mortality,egg,NA,13,weeks,flowthrough,measured,chapman1975
+0.917711838,9,zinc,μM,mortality,egg,NA,13,weeks,flowthrough,measured,chapman1975
+1.544814928,4,zinc,μM,mortality,egg,NA,13,weeks,flowthrough,measured,chapman1975
+2.646069134,13,zinc,μM,mortality,egg,NA,13,weeks,flowthrough,measured,chapman1975
+4.160293668,11,zinc,μM,mortality,egg,NA,13,weeks,flowthrough,measured,chapman1975
+7.815845824,22,zinc,μM,mortality,egg,NA,13,weeks,flowthrough,measured,chapman1975
+0.00142331,9,cadmium,μM,mortality,egg,NA,12,weeks,flowthrough,measured,chapman1975
+0.004536801,5,cadmium,μM,mortality,egg,NA,12,weeks,flowthrough,measured,chapman1975
+0.006315939,6,cadmium,μM,mortality,egg,NA,12,weeks,flowthrough,measured,chapman1975
+0.008539862,3,cadmium,μM,mortality,egg,NA,12,weeks,flowthrough,measured,chapman1975
+0.011564396,18,cadmium,μM,mortality,egg,NA,12,weeks,flowthrough,measured,chapman1975
+0.016723896,27,cadmium,μM,mortality,egg,NA,12,weeks,flowthrough,measured,chapman1975
+0,1,ddt,μM,mortality,less1year,years,14,days,staticrenewal,nominal,buhler1969
+17.63146017,1,ddt,μM,mortality,less1year,years,14,days,staticrenewal,nominal,buhler1969
+70.52584067,2,ddt,μM,mortality,less1year,years,14,days,staticrenewal,nominal,buhler1969
+282.1033627,63,ddt,μM,mortality,less1year,years,14,days,staticrenewal,nominal,buhler1969
+1128.413451,100,ddt,μM,mortality,less1year,years,14,days,staticrenewal,nominal,buhler1969
+0,8.8,24d,μM,mortality,egg,NA,36,days,staticrenewal,measured,finlayson1985
+0.04358655,9,24d,μM,mortality,egg,NA,36,days,staticrenewal,measured,finlayson1985
+0.074719801,11,24d,μM,mortality,egg,NA,36,days,staticrenewal,measured,finlayson1985
+0.124533001,8.9,24d,μM,mortality,egg,NA,36,days,staticrenewal,measured,finlayson1985
+0.186799502,11.8,24d,μM,mortality,egg,NA,36,days,staticrenewal,measured,finlayson1985
+0.367372354,53.1,24d,μM,mortality,egg,NA,36,days,staticrenewal,measured,finlayson1985
+0,0,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.263350668,0,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.302701917,0,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.348107205,0,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.408647588,5,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.544863451,60,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.726484602,95,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0.968646135,95,malathion,μM,mortality,fingerling,NA,24,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.263350668,0,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.302701917,0,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.348107205,10,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.408647588,20,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.544863451,90,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.726484602,100,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0.968646135,100,malathion,μM,mortality,fingerling,NA,48,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.263350668,25,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.302701917,10,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.348107205,45,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.408647588,85,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.544863451,100,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.726484602,91,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0.968646135,100,malathion,μM,mortality,fingerling,NA,96,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0,0,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.263350668,25,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.302701917,20,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.348107205,85,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.408647588,95,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.544863451,100,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.726484602,91,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
+0.968646135,100,malathion,μM,mortality,fingerling,NA,144,hours,static,nominal,parkhurst1955
