@@ -7,8 +7,8 @@ install.packages("drc")
 library("drc") #load package 
 
 #read in Striped Bass and Chinook Salmon toxicity data
-chinook = read.csv("chinooktoxdataM.csv")
-bass = read.csv("basstoxdataM.csv")
+chinook = read.csv("Delta_Conc_Response/chinooktoxdataM.csv")
+bass = read.csv("Delta_Conc_Response/basstoxdataM.csv")
 
 #########################################################################
 
