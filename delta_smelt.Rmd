@@ -1,0 +1,237 @@
+---
+title: "Delta Smelt"
+author: "Eric Lawrence"
+date: "7/8/2021"
+output:
+  html_document:
+    code_folding: show
+    code_download: true
+    keep_md: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo =TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r}
+
+library(drc)
+library(tidyverse)
+
+smelt <- read.csv("smelt_range_finding_survival_data.csv")
+
+
+```
+
+# Dose Response Plots
+
+```{r}
+
+drc.plot <- function (cont) {
+  
+  ## filter for chemical
+  filt <- smelt %>%
+  filter(chemical == cont) %>%
+  mutate(percent_m = dead / total)
+  
+  ## Create model
+  mod <- drm(filt$percent_m ~ filt$dose.adj, fct = LL.3(fixed = c(NA, 1, NA)), type = "binomial")
+  
+  ## Plot curve
+  
+  plot(mod, type = "confidence", ylab = "Percent Mortality",
+     xlab = "Concentration (mg/L)",
+     main = paste(cont, "LL.3"))
+  #plot(mod, type = "all", add = TRUE)
+  
+  y <- jitter(filt$percent_m)
+  x <- jitter(filt$dose.adj)
+  
+  points(y ~ x)
+
+
+  #Legend
+  
+  legend("topleft", c("95% Confidence Interval"),
+         lty=c(1,1),
+         lwd=c(2.5,2.5), 
+         col=c('gray'),
+         bty = "n")
+  
+  ## Model fit
+  mod.fit <- mselect(mod, list(LL.3()))
+  print(mod.fit)
+  
+  ## QA/QC
+  
+  qqnorm(resid(mod))
+  
+  
+  qqline(resid(mod))
+  
+  plot(resid(mod)~predict(mod))
+  abline(h=0)
+  
+  ############################## Model Parameters
+
+  sum <- summary(mod)
+  print(sum)
+  
+  ################################ EC50
+
+  mod.ec <- ED(mod, c(5, 10, 20, 50), interval = "delta")
+  
+}
+
+drc.plot.sal <- function (cont) {
+  
+  ## filter for chemical
+  filt <- smelt %>%
+  filter(chemical == cont) %>%
+  mutate(percent_m = dead / total)
+  
+  ## Create models
+  mod.5 <- drm(filt$percent_m[filt$salinity == 5] ~ filt$dose.adj[filt$salinity == 5], fct = LL.3(fixed = c(NA, 1, NA)), type = "binomial")
+  
+  mod.15 <- drm(filt$percent_m[filt$salinity == 15] ~ filt$dose.adj[filt$salinity == 15], fct = LL.3(fixed = c(NA, 1, NA)), type = "binomial")
+  
+  ## Plot curves
+  
+  plot(mod.5, type = "confidence", ylab = "Percent Mortality",
+     xlab = "Concentration (mg/L)",
+     main = paste(cont, "LL.3"),
+     col = "orange")
+  #plot(mod.5, type = "all", col = "orange", add = TRUE)
+  y.5 <- jitter(filt$percent_m[filt$salinity == 5])
+  x.5 <- jitter(filt$dose.adj[filt$salinity == 5])
+  points(y.5 ~ x.5, col = "orange")
+  
+  
+  plot(mod.15, type = "confidence", ylab = "Percent Mortality",
+     xlab = "Concentration (mg/L)",
+     main = paste(cont, "LL.3"),
+     col = "blue",
+     add = TRUE)
+  #plot(mod.15, type = "all", col = "blue", add = TRUE)
+  y.15 <- jitter(filt$percent_m[filt$salinity == 15])
+  x.15 <- jitter(filt$dose.adj[filt$salinity == 15])
+  
+  points(y.15 ~ x.15, col = "blue")
+  
+
+
+  #Legend
+  
+  legend("topleft", c("5 PSU Salinity","15 PSU Salinity"),
+         lty=c(1,1),
+         lwd=c(2.5,2.5), 
+         col=c('orange', "blue"),
+         bty = "n")
+  
+  ## Model fit
+  mod.fit.5 <- mselect(mod.5, list(LL.3()))
+  print(mod.fit.5)
+  
+  mod.fit.15 <- mselect(mod.15, list(LL.3()))
+  print(mod.fit.15)
+  
+  ## QA/QC
+  
+  qqnorm(resid(mod.5))
+  qqnorm(resid(mod.15))
+  
+  qqline(resid(mod.5))
+  qqline(resid(mod.15))
+  
+  plot(resid(mod.5)~predict(mod.5))
+  abline(h=0)
+  
+  sum.5 <- summary(mod.5)
+  sum.5
+  
+  plot(resid(mod.15)~predict(mod.15))
+  abline(h=0)
+  
+  ############################## Model Parameters
+
+  
+  
+  sum.15 <- summary(mod.15)
+  sum.15
+  
+  ################################ EC50
+
+  mod.ec.5 <- ED(mod.5, c(5, 10, 20, 50), interval = "delta")
+  mod.ec.15 <- ED(mod.5, c(5, 10, 20, 50), interval = "delta")
+  
+}
+
+```
+
+## Bifenthrin
+
+```{r}
+drc.plot("bifenthrin")
+drc.plot.sal("bifenthrin")
+
+```
+
+## Chlorpyrifos
+
+```{r}
+
+drc.plot("chlorpyrifos")
+drc.plot.sal("chlorpyrifos")
+
+```
+
+## Dicloran
+
+```{r}
+
+drc.plot("dicloran")
+drc.plot.sal("dicloran")
+
+```
+
+## Myclobutanil
+
+```{r}
+
+drc.plot("myclobutanil")
+drc.plot.sal("myclobutanil")
+
+```
+
+## Paraquat
+
+```{r}
+
+drc.plot("paraquat")
+drc.plot.sal("paraquat")
+
+```
+
+## Penconazole
+
+```{r}
+
+drc.plot("penconazole")
+drc.plot.sal("penconazole")
+
+```
+
+## Triadimefon
+
+```{r}
+
+drc.plot("triadimefon")
+drc.plot.sal("triadimefon")
+
+```
+
+
+
