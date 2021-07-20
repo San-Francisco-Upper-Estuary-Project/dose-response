@@ -1,7 +1,7 @@
 ---
 title: "Delta Smelt"
 author: "Eric Lawrence"
-date: "7/8/2021"
+date: "7/19/2021"
 output:
   html_document:
     code_folding: show
@@ -16,6 +16,39 @@ knitr::opts_chunk$set(echo =TRUE, warning = FALSE, message = FALSE)
 ```
 
 
+# Concentration-Response Models
+
+The following concentration-response models were constructed using the data supplied by Hutton et al. (2021) who analyzed the effect of salinity on the toxicity of seven pesticides to silversides (*Menidia beryllina*). The data were available online as part of the supplemental materials.
+
+Data points plotted in the figures have been jittered, or moved around slightly, on x and y axes so that all they are not all stacked on each other.
+
+Hutton, SJ, St. Romain SJ, Pedersen EL, Siddiqui S, Chappell PE, White JW, Armbrust KL, Brander SM. 2021. Salinity alters toxicity of commonly used pesticides in a model euryhaline fish species (*Menidia beryllina*). *Toxics* 9:114.
+
+## drc Model
+
+I used the Log Logistic 3 parameter model included in the drc package to plot the curves. I used the binomial type and fixed the upper limit to 1 (100% mortality).
+
+Log-logistic 3 parameter model:
+
+$f(x) = 0+\frac{d-0}{(1+exp(b(log(x)-e)))}$
+
+where
+
+$d$ = 1 to fix the upper limit to 1
+
+$e$ = LC50
+
+To use this equation in Netica we need to estimate the $b$ and $e$ parameters.
+
+## Salinity
+
+Hutton et al. (2020) used two sets of experiments using 5 PSU and 15 PSU Salinity. I have combined the data from the two salinity values to incorporate uncertainty along a salinity gradient. Hutton et al. (2020) also did not find significant differences between the different salinity models.
+
+## R Code
+
+<details>
+  <summary><b>R Code</b></summary>
+  
 ```{r}
 
 library(drc)
@@ -23,12 +56,6 @@ library(tidyverse)
 
 smelt <- read.csv("smelt_range_finding_survival_data.csv")
 
-
-```
-
-# Dose Response Plots
-
-```{r}
 
 drc.plot <- function (cont) {
   
@@ -41,6 +68,8 @@ drc.plot <- function (cont) {
   mod <- drm(filt$percent_m ~ filt$dose.adj, fct = LL.3(fixed = c(NA, 1, NA)), type = "binomial")
   
   ## Plot curve
+  
+  par(mfrow=c(2,2))
   
   plot(mod, type = "confidence", ylab = "Percent Mortality",
      xlab = "Concentration (mg/L)",
@@ -59,11 +88,8 @@ drc.plot <- function (cont) {
          lty=c(1,1),
          lwd=c(2.5,2.5), 
          col=c('gray'),
-         bty = "n")
-  
-  ## Model fit
-  mod.fit <- mselect(mod, list(LL.3()))
-  print(mod.fit)
+         bty = "n",
+         cex = 0.8)
   
   ## QA/QC
   
@@ -72,7 +98,7 @@ drc.plot <- function (cont) {
   
   qqline(resid(mod))
   
-  plot(resid(mod)~predict(mod))
+  plot(resid(mod)~predict(mod), main = "Residuals")
   abline(h=0)
   
   ############################## Model Parameters
@@ -102,7 +128,7 @@ drc.plot.sal <- function (cont) {
   
   plot(mod.5, type = "confidence", ylab = "Percent Mortality",
      xlab = "Concentration (mg/L)",
-     main = paste(cont, "LL.3"),
+     main = paste(cont, "LL.3, Salinity"),
      col = "orange")
   #plot(mod.5, type = "all", col = "orange", add = TRUE)
   y.5 <- jitter(filt$percent_m[filt$salinity == 5])
@@ -129,109 +155,114 @@ drc.plot.sal <- function (cont) {
          lty=c(1,1),
          lwd=c(2.5,2.5), 
          col=c('orange', "blue"),
-         bty = "n")
-  
-  ## Model fit
-  mod.fit.5 <- mselect(mod.5, list(LL.3()))
-  print(mod.fit.5)
-  
-  mod.fit.15 <- mselect(mod.15, list(LL.3()))
-  print(mod.fit.15)
-  
-  ## QA/QC
-  
-  qqnorm(resid(mod.5))
-  qqnorm(resid(mod.15))
-  
-  qqline(resid(mod.5))
-  qqline(resid(mod.15))
-  
-  plot(resid(mod.5)~predict(mod.5))
-  abline(h=0)
-  
-  sum.5 <- summary(mod.5)
-  sum.5
-  
-  plot(resid(mod.15)~predict(mod.15))
-  abline(h=0)
-  
-  ############################## Model Parameters
+         bty = "n",
+         cex = 0.8)
 
-  
-  
-  sum.15 <- summary(mod.15)
-  sum.15
-  
-  ################################ EC50
 
-  mod.ec.5 <- ED(mod.5, c(5, 10, 20, 50), interval = "delta")
-  mod.ec.15 <- ED(mod.5, c(5, 10, 20, 50), interval = "delta")
   
 }
 
 ```
 
-## Bifenthrin
+</details>
+<br><br>
 
-```{r}
+# Bifenthrin
+
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.85959(log(x)-0.000013751)))}$
+
+
+```{r, fig.width=8, fig.height=7}
 drc.plot("bifenthrin")
 drc.plot.sal("bifenthrin")
 
 ```
 
-## Chlorpyrifos
+# Chlorpyrifos
 
-```{r}
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.5273(log(x)-0.004397)))}$
+
+```{r, fig.width=8, fig.height=7}
 
 drc.plot("chlorpyrifos")
 drc.plot.sal("chlorpyrifos")
 
 ```
 
-## Dicloran
+# Dicloran
 
-```{r}
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.6628(log(x)-0.003734)))}$
+
+```{r, fig.width=8, fig.height=7}
 
 drc.plot("dicloran")
 drc.plot.sal("dicloran")
 
 ```
 
-## Myclobutanil
+# Myclobutanil
 
-```{r}
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.3286(log(x)-2.315)))}$
+
+```{r, fig.width=8, fig.height=7}
 
 drc.plot("myclobutanil")
 drc.plot.sal("myclobutanil")
 
 ```
 
-## Paraquat
+# Paraquat
 
-```{r}
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.3334(log(x)-26.1204)))}$
+
+```{r, fig.width=8, fig.height=7}
 
 drc.plot("paraquat")
 drc.plot.sal("paraquat")
 
 ```
 
-## Penconazole
+# Penconazole
 
-```{r}
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.3363(log(x)-0.04808)))}$
+
+```{r, fig.width=8, fig.height=7}
 
 drc.plot("penconazole")
 drc.plot.sal("penconazole")
 
 ```
 
-## Triadimefon
+# Triadimefon
 
-```{r}
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.6433(log(x)-0.7734)))}$
+
+```{r, fig.width=8, fig.height=7}
 
 drc.plot("triadimefon")
 drc.plot.sal("triadimefon")
 
 ```
 
-
+<details>
+  <summary><b>R Session Information</b></summary>
+```{r results=T}
+xfun::session_info('rmarkdown')
+```
+</details>
+<br><br>
 

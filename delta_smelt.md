@@ -1,7 +1,7 @@
 ---
 title: "Delta Smelt"
 author: "Eric Lawrence"
-date: "7/8/2021"
+date: "7/19/2021"
 output:
   html_document:
     code_folding: show
@@ -14,18 +14,47 @@ editor_options:
 
 
 
+# Concentration-Response Models
+
+The following concentration-response models were constructed using the data supplied by Hutton et al. (2021) who analyzed the effect of salinity on the toxicity of seven pesticides to silversides (*Menidia beryllina*). The data were available online as part of the supplemental materials.
+
+Data points plotted in the figures have been jittered, or moved around slightly, on x and y axes so that all they are not all stacked on each other.
+
+Hutton, SJ, St. Romain SJ, Pedersen EL, Siddiqui S, Chappell PE, White JW, Armbrust KL, Brander SM. 2021. Salinity alters toxicity of commonly used pesticides in a model euryhaline fish species (*Menidia beryllina*). *Toxics* 9:114.
+
+## drc Model
+
+I used the Log Logistic 3 parameter model included in the drc package to plot the curves. I used the binomial type and fixed the upper limit to 1 (100% mortality).
+
+Log-logistic 3 parameter model:
+
+$f(x) = 0+\frac{d-0}{(1+exp(b(log(x)-e)))}$
+
+where
+
+$d$ = 1 to fix the upper limit to 1
+
+$e$ = LC50
+
+To use this equation in Netica we need to estimate the $b$ and $e$ parameters.
+
+## Salinity
+
+Hutton et al. (2020) used two sets of experiments using 5 PSU and 15 PSU Salinity. I have combined the data from the two salinity values to incorporate uncertainty along a salinity gradient. Hutton et al. (2020) also did not find significant differences between the different salinity models.
+
+## R Code
+
+<details>
+  <summary><b>R Code</b></summary>
+  
 
 ```r
 library(drc)
 library(tidyverse)
 
 smelt <- read.csv("smelt_range_finding_survival_data.csv")
-```
-
-# Dose Response Plots
 
 
-```r
 drc.plot <- function (cont) {
   
   ## filter for chemical
@@ -37,6 +66,8 @@ drc.plot <- function (cont) {
   mod <- drm(filt$percent_m ~ filt$dose.adj, fct = LL.3(fixed = c(NA, 1, NA)), type = "binomial")
   
   ## Plot curve
+  
+  par(mfrow=c(2,2))
   
   plot(mod, type = "confidence", ylab = "Percent Mortality",
      xlab = "Concentration (mg/L)",
@@ -55,11 +86,8 @@ drc.plot <- function (cont) {
          lty=c(1,1),
          lwd=c(2.5,2.5), 
          col=c('gray'),
-         bty = "n")
-  
-  ## Model fit
-  mod.fit <- mselect(mod, list(LL.3()))
-  print(mod.fit)
+         bty = "n",
+         cex = 0.8)
   
   ## QA/QC
   
@@ -68,7 +96,7 @@ drc.plot <- function (cont) {
   
   qqline(resid(mod))
   
-  plot(resid(mod)~predict(mod))
+  plot(resid(mod)~predict(mod), main = "Residuals")
   abline(h=0)
   
   ############################## Model Parameters
@@ -98,7 +126,7 @@ drc.plot.sal <- function (cont) {
   
   plot(mod.5, type = "confidence", ylab = "Percent Mortality",
      xlab = "Concentration (mg/L)",
-     main = paste(cont, "LL.3"),
+     main = paste(cont, "LL.3, Salinity"),
      col = "orange")
   #plot(mod.5, type = "all", col = "orange", add = TRUE)
   y.5 <- jitter(filt$percent_m[filt$salinity == 5])
@@ -125,63 +153,28 @@ drc.plot.sal <- function (cont) {
          lty=c(1,1),
          lwd=c(2.5,2.5), 
          col=c('orange', "blue"),
-         bty = "n")
-  
-  ## Model fit
-  mod.fit.5 <- mselect(mod.5, list(LL.3()))
-  print(mod.fit.5)
-  
-  mod.fit.15 <- mselect(mod.15, list(LL.3()))
-  print(mod.fit.15)
-  
-  ## QA/QC
-  
-  qqnorm(resid(mod.5))
-  qqnorm(resid(mod.15))
-  
-  qqline(resid(mod.5))
-  qqline(resid(mod.15))
-  
-  plot(resid(mod.5)~predict(mod.5))
-  abline(h=0)
-  
-  sum.5 <- summary(mod.5)
-  sum.5
-  
-  plot(resid(mod.15)~predict(mod.15))
-  abline(h=0)
-  
-  ############################## Model Parameters
+         bty = "n",
+         cex = 0.8)
 
-  
-  
-  sum.15 <- summary(mod.15)
-  sum.15
-  
-  ################################ EC50
 
-  mod.ec.5 <- ED(mod.5, c(5, 10, 20, 50), interval = "delta")
-  mod.ec.15 <- ED(mod.5, c(5, 10, 20, 50), interval = "delta")
   
 }
 ```
 
-## Bifenthrin
+</details>
+<br><br>
+
+# Bifenthrin
+
+Model Equation
+
+$f(x) = 0+\frac{1-0}{(1+exp(-0.85959(log(x)-0.000013751)))}$
+
 
 
 ```r
 drc.plot("bifenthrin")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -26.32041 56.64081   0.7915266
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-3-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-3-3.png)<!-- -->
 
 ```
 ## 
@@ -208,54 +201,18 @@ drc.plot("bifenthrin")
 drc.plot.sal("bifenthrin")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-3-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
-```
-##         logLik       IC Lack of fit
-## LL.3 -10.81001 25.62003   0.9892253
-## LL.3        NA       NA          NA
-##         logLik       IC Lack of fit
-## LL.3 -15.00074 34.00148   0.8026162
-## LL.3        NA       NA          NA
-```
+# Chlorpyrifos
 
-![](delta_smelt_files/figure-html/unnamed-chunk-3-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-3-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-3-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-3-8.png)<!-- -->
+Model Equation
 
-```
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   1.1693e-05  1.3023e-05 -1.3832e-05  3.7218e-05
-## e:1:10  2.2723e-05  2.0768e-05 -1.7982e-05  6.3428e-05
-## e:1:20  4.6732e-05  3.3477e-05 -1.8883e-05  1.1235e-04
-## e:1:50  1.6030e-04  7.9460e-05  4.5646e-06  3.1604e-04
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   1.1693e-05  1.3023e-05 -1.3832e-05  3.7218e-05
-## e:1:10  2.2723e-05  2.0768e-05 -1.7982e-05  6.3428e-05
-## e:1:20  4.6732e-05  3.3477e-05 -1.8883e-05  1.1235e-04
-## e:1:50  1.6030e-04  7.9460e-05  4.5646e-06  3.1604e-04
-```
-
-## Chlorpyrifos
+$f(x) = 0+\frac{1-0}{(1+exp(-0.5273(log(x)-0.004397)))}$
 
 
 ```r
 drc.plot("chlorpyrifos")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -29.60091 63.20183   0.9987335
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-4-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-4-3.png)<!-- -->
 
 ```
 ## 
@@ -282,54 +239,18 @@ drc.plot("chlorpyrifos")
 drc.plot.sal("chlorpyrifos")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-4-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
-```
-##        logLik       IC Lack of fit
-## LL.3 -14.3437 32.68741   0.9978533
-## LL.3       NA       NA          NA
-##         logLik       IC Lack of fit
-## LL.3 -14.77361 33.54721   0.9560632
-## LL.3        NA       NA          NA
-```
+# Dicloran
 
-![](delta_smelt_files/figure-html/unnamed-chunk-4-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-4-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-4-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-4-8.png)<!-- -->
+Model Equation
 
-```
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   3.4533e-05  6.3520e-05 -8.9964e-05  1.5903e-04
-## e:1:10  1.3762e-04  2.0218e-04 -2.5865e-04  5.3390e-04
-## e:1:20  6.1710e-04  6.9259e-04 -7.4036e-04  1.9746e-03
-## e:1:50  8.0239e-03  7.0055e-03 -5.7067e-03  2.1755e-02
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   3.4533e-05  6.3520e-05 -8.9964e-05  1.5903e-04
-## e:1:10  1.3762e-04  2.0218e-04 -2.5865e-04  5.3390e-04
-## e:1:20  6.1710e-04  6.9259e-04 -7.4036e-04  1.9746e-03
-## e:1:50  8.0239e-03  7.0055e-03 -5.7067e-03  2.1755e-02
-```
-
-## Dicloran
+$f(x) = 0+\frac{1-0}{(1+exp(-0.6628(log(x)-0.003734)))}$
 
 
 ```r
 drc.plot("dicloran")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -24.33319 52.66637   0.9999999
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-5-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-5-3.png)<!-- -->
 
 ```
 ## 
@@ -356,54 +277,18 @@ drc.plot("dicloran")
 drc.plot.sal("dicloran")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-5-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
-```
-##         logLik       IC Lack of fit
-## LL.3 -11.56856 27.13712   0.9973861
-## LL.3        NA       NA          NA
-##         logLik       IC Lack of fit
-## LL.3 -12.31775 28.63549   0.9999193
-## LL.3        NA       NA          NA
-```
+# Myclobutanil
 
-![](delta_smelt_files/figure-html/unnamed-chunk-5-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-5-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-5-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-5-8.png)<!-- -->
+Model Equation
 
-```
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   0.00010150  0.00015733 -0.00020687  0.00040987
-## e:1:10  0.00028787  0.00036394 -0.00042544  0.00100118
-## e:1:20  0.00089240  0.00088386 -0.00083993  0.00262473
-## e:1:50  0.00617367  0.00454727 -0.00273881  0.01508615
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   0.00010150  0.00015733 -0.00020687  0.00040987
-## e:1:10  0.00028787  0.00036394 -0.00042544  0.00100118
-## e:1:20  0.00089240  0.00088386 -0.00083993  0.00262473
-## e:1:50  0.00617367  0.00454727 -0.00273881  0.01508615
-```
-
-## Myclobutanil
+$f(x) = 0+\frac{1-0}{(1+exp(-0.3286(log(x)-2.315)))}$
 
 
 ```r
 drc.plot("myclobutanil")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -36.18174 76.36349   0.9256093
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-6-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-6-3.png)<!-- -->
 
 ```
 ## 
@@ -430,54 +315,18 @@ drc.plot("myclobutanil")
 drc.plot.sal("myclobutanil")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-6-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
-```
-##         logLik       IC Lack of fit
-## LL.3 -18.67848 41.35696   0.8548459
-## LL.3        NA       NA          NA
-##         logLik       IC Lack of fit
-## LL.3 -17.34617 38.69235   0.7502402
-## LL.3        NA       NA          NA
-```
+# Paraquat
 
-![](delta_smelt_files/figure-html/unnamed-chunk-6-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-6-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-6-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-6-8.png)<!-- -->
+Model Equation
 
-```
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   0.00013685  0.00050037 -0.00084387  0.00111757
-## e:1:10  0.00183877  0.00497059 -0.00790341  0.01158095
-## e:1:20  0.03083350  0.05598566 -0.07889638  0.14056338
-## e:1:50  3.82219211  6.20140016 -8.33232886 15.97671308
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   0.00013685  0.00050037 -0.00084387  0.00111757
-## e:1:10  0.00183877  0.00497059 -0.00790341  0.01158095
-## e:1:20  0.03083350  0.05598566 -0.07889638  0.14056338
-## e:1:50  3.82219211  6.20140016 -8.33232886 15.97671308
-```
-
-## Paraquat
+$f(x) = 0+\frac{1-0}{(1+exp(-0.3334(log(x)-26.1204)))}$
 
 
 ```r
 drc.plot("paraquat")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -36.62915 77.25831   0.9867665
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-7-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-7-3.png)<!-- -->
 
 ```
 ## 
@@ -504,54 +353,18 @@ drc.plot("paraquat")
 drc.plot.sal("paraquat")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-7-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
-```
-##        logLik       IC Lack of fit
-## LL.3 -17.9223 39.84459   0.9334829
-## LL.3       NA       NA          NA
-##         logLik       IC Lack of fit
-## LL.3 -18.61382 41.22763   0.9174025
-## LL.3        NA       NA          NA
-```
+# Penconazole
 
-![](delta_smelt_files/figure-html/unnamed-chunk-7-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-7-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-7-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-7-8.png)<!-- -->
+Model Equation
 
-```
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5    0.0059301   0.0177938  -0.0289452   0.0408054
-## e:1:10   0.0545624   0.1239331  -0.1883421   0.2974668
-## e:1:20   0.6066135   0.9642582  -1.2832978   2.4965249
-## e:1:50  37.2471700  49.1035030 -58.9939274 133.4882674
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5    0.0059301   0.0177938  -0.0289452   0.0408054
-## e:1:10   0.0545624   0.1239331  -0.1883421   0.2974668
-## e:1:20   0.6066135   0.9642582  -1.2832978   2.4965249
-## e:1:50  37.2471700  49.1035030 -58.9939274 133.4882674
-```
-
-## Penconazole
+$f(x) = 0+\frac{1-0}{(1+exp(-0.3363(log(x)-0.04808)))}$
 
 
 ```r
 drc.plot("penconazole")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -37.83268 79.66536   0.9998839
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-8-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-8-3.png)<!-- -->
 
 ```
 ## 
@@ -578,54 +391,18 @@ drc.plot("penconazole")
 drc.plot.sal("penconazole")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-8-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
-```
-##         logLik       IC Lack of fit
-## LL.3 -18.50472 41.00943   0.9412249
-## LL.3        NA       NA          NA
-##         logLik      IC Lack of fit
-## LL.3 -18.80025 41.6005   0.9997956
-## LL.3        NA      NA          NA
-```
+# Triadimefon
 
-![](delta_smelt_files/figure-html/unnamed-chunk-8-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-8-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-8-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-8-8.png)<!-- -->
+Model Equation
 
-```
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   2.9312e-05  8.4083e-05 -1.3549e-04  1.9411e-04
-## e:1:10  2.3488e-04  5.2428e-04 -7.9268e-04  1.2624e-03
-## e:1:20  2.2477e-03  3.6267e-03 -4.8604e-03  9.3558e-03
-## e:1:50  1.0680e-01  1.2163e-01 -1.3158e-01  3.4518e-01
-## 
-## Estimated effective doses
-## 
-##           Estimate  Std. Error       Lower       Upper
-## e:1:5   2.9312e-05  8.4083e-05 -1.3549e-04  1.9411e-04
-## e:1:10  2.3488e-04  5.2428e-04 -7.9268e-04  1.2624e-03
-## e:1:20  2.2477e-03  3.6267e-03 -4.8604e-03  9.3558e-03
-## e:1:50  1.0680e-01  1.2163e-01 -1.3158e-01  3.4518e-01
-```
-
-## Triadimefon
+$f(x) = 0+\frac{1-0}{(1+exp(-0.6433(log(x)-0.7734)))}$
 
 
 ```r
 drc.plot("triadimefon")
 ```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
-
-```
-##         logLik       IC Lack of fit
-## LL.3 -25.50172 55.00343   0.9995414
-## LL.3        NA       NA          NA
-```
-
-![](delta_smelt_files/figure-html/unnamed-chunk-9-2.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-9-3.png)<!-- -->
 
 ```
 ## 
@@ -652,37 +429,37 @@ drc.plot("triadimefon")
 drc.plot.sal("triadimefon")
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-9-4.png)<!-- -->
+![](delta_smelt_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
-```
-##         logLik       IC Lack of fit
-## LL.3 -11.58006 27.16012   0.9146622
-## LL.3        NA       NA          NA
-##         logLik       IC Lack of fit
-## LL.3 -11.08798 26.17595   0.9991032
-## LL.3        NA       NA          NA
+<details>
+  <summary><b>R Session Information</b></summary>
+
+```r
+xfun::session_info('rmarkdown')
 ```
 
-![](delta_smelt_files/figure-html/unnamed-chunk-9-5.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-9-6.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-9-7.png)<!-- -->![](delta_smelt_files/figure-html/unnamed-chunk-9-8.png)<!-- -->
-
 ```
+## R version 4.0.2 (2020-06-22)
+## Platform: i386-w64-mingw32/i386 (32-bit)
+## Running under: Windows 10 x64 (build 18363)
 ## 
-## Estimated effective doses
+## Locale:
+##   LC_COLLATE=English_United States.1252 
+##   LC_CTYPE=English_United States.1252   
+##   LC_MONETARY=English_United States.1252
+##   LC_NUMERIC=C                          
+##   LC_TIME=English_United States.1252    
 ## 
-##         Estimate Std. Error     Lower     Upper
-## e:1:5   0.040729   0.061450 -0.079711  0.161169
-## e:1:10  0.118500   0.144437 -0.164591  0.401591
-## e:1:20  0.377642   0.358832 -0.325656  1.080940
-## e:1:50  2.738945   2.068209 -1.314670  6.792560
+## Package version:
+##   base64enc_0.1.3 digest_0.6.25   evaluate_0.14   glue_1.4.1     
+##   graphics_4.0.2  grDevices_4.0.2 highr_0.8       htmltools_0.5.0
+##   jsonlite_1.7.1  knitr_1.29      magrittr_1.5    markdown_1.1   
+##   methods_4.0.2   mime_0.9        rlang_0.4.7     rmarkdown_2.5  
+##   stats_4.0.2     stringi_1.4.6   stringr_1.4.0   tinytex_0.25   
+##   tools_4.0.2     utils_4.0.2     xfun_0.16       yaml_2.2.1     
 ## 
-## Estimated effective doses
-## 
-##         Estimate Std. Error     Lower     Upper
-## e:1:5   0.040729   0.061450 -0.079711  0.161169
-## e:1:10  0.118500   0.144437 -0.164591  0.401591
-## e:1:20  0.377642   0.358832 -0.325656  1.080940
-## e:1:50  2.738945   2.068209 -1.314670  6.792560
+## Pandoc version: 2.7.3
 ```
-
-
+</details>
+<br><br>
 
